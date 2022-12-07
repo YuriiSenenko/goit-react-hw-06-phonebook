@@ -53,10 +53,6 @@ export function App() {
     setContacts(contacts.filter(contact => contact.id !== id));
   };
 
-  // const onDeleteContact = id => {
-  //   setContacts(contacts.filter(contact => contact.id !== id));
-  // };
-
   const changeFilter = e => {
     setFilter(e.currentTarget.value);
   };
