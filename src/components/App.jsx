@@ -1,4 +1,5 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+// import { useSelector, useDispatch } from 'react-redux';
 import css from './App.module.css';
 
 import Title from './Title';
@@ -6,61 +7,61 @@ import Form from './Form';
 import Filter from './Filter';
 import ContactList from './ContactList';
 
-export class App extends React.Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+// import { addContact, deleteContact } from '../redux/contacts/slice';
+
+// ініціалізую значення стора, якщо в локал є контакти
+const initialState = JSON.parse(localStorage.getItem('contacts'));
+
+export function App() {
+  const [contacts, setContacts] = useState(initialState ?? []);
+  const [filter, setFilter] = useState('');
+
+  // const contacts = useSelector(state => state.contacts);
+  // console.log(contacts);
+  // const dispatch = useDispatch();
+  // console.log(cont);
 
   //! Життєві цикли
-  // Перевіряє чи є щось в localStorage, якщо є, то дістає і записує початкові значення в state
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
 
   // Перевіряє чи змінився state і записує в localStorage
-  componentDidUpdate(prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   // Передає пропс в компонент форми
-  formSubmitHandler = (contact, id) => {
-    const normalizedName = contact.name.toLowerCase();
+  const formSubmitHandler = (name, number, id) => {
+    const normalizedName = name.toLowerCase();
     const contactItem = {
       id,
-      name: contact.name,
-      number: contact.number,
+      name: name,
+      number: number,
     };
-    const filteredContacts = this.state.contacts.filter(
+    const filteredContacts = contacts.filter(
       searchContact => searchContact.name.toLowerCase() === normalizedName
     );
 
     if (filteredContacts.length > 0) {
-      alert(`${contact.name} is already in contacts`);
+      alert(`${name} is already in contacts`);
     } else {
-      this.setState({
-        contacts: [contactItem, ...this.state.contacts],
-      });
+      // тут треба задіспачити-----------------------------------------------
+      // dispatch(addContact(contactItem));
+      setContacts([contactItem, ...contacts]);
     }
   };
-  onDeleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
+
+  const onDeleteContact = id => {
+    setContacts(contacts.filter(contact => contact.id !== id));
   };
 
-  changeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
+  // const onDeleteContact = id => {
+  //   setContacts(contacts.filter(contact => contact.id !== id));
+  // };
+
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  getVisibleContact = () => {
-    const { contacts, filter } = this.state;
+  const getVisibleContact = () => {
     const normalizedFilter = filter.toLowerCase();
 
     const search = contacts.filter(contact =>
@@ -69,13 +70,13 @@ export class App extends React.Component {
     return search;
   };
 
-  renderContacts = contacts => {
+  const renderContacts = contacts => {
     return contacts.map(contact => (
       <li className={css.contact} key={contact.id}>
         {contact.name}: {contact.number}
         <button
           className={css.deleteBtn}
-          onClick={() => this.onDeleteContact(contact.id)}
+          onClick={() => onDeleteContact(contact.id)}
         >
           Delete
         </button>
@@ -83,23 +84,19 @@ export class App extends React.Component {
     ));
   };
 
-  render() {
-    const { filter } = this.state;
+  const visibleContacts = getVisibleContact();
 
-    const visibleContacts = this.getVisibleContact();
+  return (
+    <div>
+      <Title>Phonebook</Title>
+      <Form onSubmit={formSubmitHandler} />
 
-    return (
-      <div>
-        <Title>Phonebook</Title>
-        <Form onSubmit={this.formSubmitHandler} />
-
-        <h2> Contacts</h2>
-        <Filter value={filter} onChange={this.changeFilter} />
-        <ContactList
-          renderContacts={this.renderContacts}
-          visibleContacts={visibleContacts}
-        />
-      </div>
-    );
-  }
+      <h2> Contacts</h2>
+      <Filter value={filter} onChange={changeFilter} />
+      <ContactList
+        renderContacts={renderContacts}
+        visibleContacts={visibleContacts}
+      />
+    </div>
+  );
 }
