@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
-// import { useSelector, useDispatch } from 'react-redux';
+// import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addContact, deleteContact } from '../redux/contactsSlice';
+import { addFilter } from '../redux/filterSlice';
+import { getContacts, getFilter } from '../redux/selectors';
 import css from './App.module.css';
 
 import Title from './Title';
@@ -7,26 +10,11 @@ import Form from './Form';
 import Filter from './Filter';
 import ContactList from './ContactList';
 
-// import { addContact, deleteContact } from '../redux/contacts/slice';
-
-// ініціалізую значення стора, якщо в локал є контакти
-const initialState = JSON.parse(localStorage.getItem('contacts'));
-
 export function App() {
-  const [contacts, setContacts] = useState(initialState ?? []);
-  const [filter, setFilter] = useState('');
+  const { contacts } = useSelector(getContacts);
+  const { filter } = useSelector(getFilter);
 
-  // const contacts = useSelector(state => state.contacts);
-  // console.log(contacts);
-  // const dispatch = useDispatch();
-  // console.log(cont);
-
-  //! Життєві цикли
-
-  // Перевіряє чи змінився state і записує в localStorage
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const dispatch = useDispatch();
 
   // Передає пропс в компонент форми
   const formSubmitHandler = (name, number, id) => {
@@ -43,18 +31,16 @@ export function App() {
     if (filteredContacts.length > 0) {
       alert(`${name} is already in contacts`);
     } else {
-      // тут треба задіспачити-----------------------------------------------
-      // dispatch(addContact(contactItem));
-      setContacts([contactItem, ...contacts]);
+      dispatch(addContact(contactItem));
     }
   };
 
   const onDeleteContact = id => {
-    setContacts(contacts.filter(contact => contact.id !== id));
+    dispatch(deleteContact(id));
   };
 
   const changeFilter = e => {
-    setFilter(e.currentTarget.value);
+    dispatch(addFilter(e.currentTarget.value));
   };
 
   const getVisibleContact = () => {
@@ -88,6 +74,7 @@ export function App() {
       <Form onSubmit={formSubmitHandler} />
 
       <h2> Contacts</h2>
+
       <Filter value={filter} onChange={changeFilter} />
       <ContactList
         renderContacts={renderContacts}

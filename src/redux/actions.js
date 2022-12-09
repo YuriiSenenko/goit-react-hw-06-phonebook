@@ -7,8 +7,29 @@
 
 // import { createAction } from '@reduxjs/toolkit';
 
-// export const addContact = createAction('contacts/addContact');
-// export const deleteContact = createAction('contacts/deleteContact');
+// export const addContact = contact => {
+//   return {
+//     type: 'contacts/addContact',
+//     payload: {
+//       contact,
+//     },
+//   };
+// };
 
-// console.log(addContact);
-// console.log('actions');
+// export const deleteContact = id => {
+//   return {
+//     type: 'contacts/deleteContact',
+//     payload: {
+//       id,
+//     },
+//   };
+// };
+
+// export const changeFilter = text => {
+//   return {
+//     type: 'filter/changeFilter',
+//     payload: {
+//       text,
+//     },
+//   };
+// };
