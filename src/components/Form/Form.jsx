@@ -2,10 +2,35 @@ import css from './Form.module.css';
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
+import { getContacts } from '../../redux/selectors';
 
-function Form({ onSubmit }) {
+function Form() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const { contacts } = useSelector(getContacts);
+
+  const dispatch = useDispatch();
+
+  const formSubmitHandler = (name, number, id) => {
+    const normalizedName = name.toLowerCase();
+    const contactItem = {
+      id,
+      name: name,
+      number: number,
+    };
+    const filteredContacts = contacts.filter(
+      searchContact => searchContact.name.toLowerCase() === normalizedName
+    );
+
+    if (filteredContacts.length > 0) {
+      alert(`${name} is already in contacts`);
+    } else {
+      dispatch(addContact(contactItem));
+    }
+  };
 
   const handelChange = e => {
     switch (e.currentTarget.name) {
@@ -23,7 +48,7 @@ function Form({ onSubmit }) {
 
   const handelSubmit = event => {
     event.preventDefault();
-    onSubmit(name, number, nanoid());
+    formSubmitHandler(name, number, nanoid());
     reset();
   };
   const reset = () => {
